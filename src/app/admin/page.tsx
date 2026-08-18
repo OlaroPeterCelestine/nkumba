@@ -5,6 +5,8 @@ export const metadata = {
   title: "Registrations dashboard",
 };
 
+export const dynamic = "force-dynamic";
+
 function formatDate(value: Date) {
   return new Intl.DateTimeFormat("en-GB", {
     dateStyle: "medium",
