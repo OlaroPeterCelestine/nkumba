@@ -12,7 +12,7 @@ export default function LogoutButton() {
   }
 
   return (
-    <button type="button" className="back-button" onClick={logout}>
+    <button type="button" className="back-button header-action" onClick={logout}>
       Sign out
     </button>
   );

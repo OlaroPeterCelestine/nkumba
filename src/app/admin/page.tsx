@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import LogoutButton from "@/components/LogoutButton";
+import { requireAdminSession } from "@/lib/require-admin";
 
 export const metadata = {
   title: "Registrations dashboard",
@@ -9,60 +10,66 @@ export const dynamic = "force-dynamic";
 
 function formatDate(value: Date) {
   return new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "medium",
-    timeStyle: "short",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(value);
 }
 
 export default async function AdminPage() {
+  await requireAdminSession();
+
   const registrations = await prisma.registration.findMany({
     orderBy: { createdAt: "desc" },
   });
 
   return (
     <main className="page-shell dashboard-shell">
-      <section className="card header-card">
-        <p className="page-kicker">Admin</p>
-        <h1>Registrations</h1>
-        <p className="lede">
-          {registrations.length}{" "}
-          {registrations.length === 1 ? "person has" : "people have"} registered.
-        </p>
-      </section>
+      <section className="card dashboard-card">
+        <header className="dashboard-header">
+          <div>
+            <p className="page-kicker">Manager</p>
+            <h1>Registrations</h1>
+            <p className="lede">
+              {registrations.length}{" "}
+              {registrations.length === 1 ? "record" : "records"}
+            </p>
+          </div>
+          <LogoutButton />
+        </header>
 
-      <section className="card form-card">
         {registrations.length === 0 ? (
-          <p className="lede">No registrations yet.</p>
+          <p className="empty-state">No registrations yet.</p>
         ) : (
           <div className="table-wrap">
             <table className="data-table">
               <thead>
                 <tr>
+                  <th className="col-num">#</th>
                   <th>Full name</th>
                   <th>Phone</th>
                   <th>Email</th>
                   <th>Institution</th>
-                  <th>Submitted</th>
+                  <th>Date</th>
                 </tr>
               </thead>
               <tbody>
-                {registrations.map((row) => (
+                {registrations.map((row, index) => (
                   <tr key={row.id}>
-                    <td>{row.fullName}</td>
-                    <td>{row.phone}</td>
-                    <td>{row.email}</td>
-                    <td>{row.institution}</td>
-                    <td>{formatDate(row.createdAt)}</td>
+                    <td className="col-num">{index + 1}</td>
+                    <td className="col-wrap">{row.fullName}</td>
+                    <td className="col-wrap">{row.phone}</td>
+                    <td className="col-wrap">{row.email}</td>
+                    <td className="col-wrap">{row.institution}</td>
+                    <td className="col-date">{formatDate(row.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         )}
-      </section>
-
-      <section className="card footer-card">
-        <LogoutButton />
       </section>
     </main>
   );

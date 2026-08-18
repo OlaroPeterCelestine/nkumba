@@ -89,17 +89,17 @@ export default function RegistrationForm() {
   const [errors, setErrors] = useState<RegistrationErrors>({});
   const [formError, setFormError] = useState("");
   const [pending, setPending] = useState(false);
-  const [successName, setSuccessName] = useState("");
+  const [saved, setSaved] = useState<RegistrationInput | null>(null);
 
   function resetForm() {
     setValues(emptyForm);
     setErrors({});
     setFormError("");
-    setSuccessName("");
+    setSaved(null);
   }
 
   useEffect(() => {
-    if (!successName) {
+    if (!saved) {
       return;
     }
 
@@ -116,7 +116,7 @@ export default function RegistrationForm() {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
     };
-  }, [successName]);
+  }, [saved]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -155,7 +155,7 @@ export default function RegistrationForm() {
         return;
       }
 
-      setSuccessName(parsed.data.fullName);
+      setSaved(parsed.data);
       setValues(emptyForm);
     } catch {
       setFormError("Could not reach the server. Please try again.");
@@ -166,106 +166,121 @@ export default function RegistrationForm() {
 
   return (
     <>
-    <form className="form-stack" onSubmit={handleSubmit} noValidate>
-      <section className="card header-card">
-        <Logo />
-        <h1>Registration</h1>
-        <p className="lede">
-          Fill in your details below. Fields marked * are required.
-        </p>
-      </section>
-
-      <section className="card form-card">
-        <div className="section-heading">
-          <h2>Your details</h2>
-          <p>Enter your name, phone, email, and institution.</p>
-        </div>
-
-        <div className="field-grid">
-          {fields.map((field) => {
-            const error = errors[field.name];
-
-            return (
-              <label key={field.name} className="field">
-                <span className="field-label">
-                  {field.number}. {field.label}{" "}
-                  <span className="required" aria-hidden="true">
-                    *
-                  </span>
-                </span>
-                <input
-                  name={field.name}
-                  type={field.type}
-                  autoComplete={field.autoComplete}
-                  placeholder={field.placeholder}
-                  value={values[field.name]}
-                  required
-                  aria-invalid={Boolean(error)}
-                  aria-describedby={
-                    error ? `${field.name}-error` : `${field.name}-hint`
-                  }
-                  onChange={(event) => {
-                    setValues((current) => ({
-                      ...current,
-                      [field.name]: event.target.value,
-                    }));
-                    setErrors((current) => ({
-                      ...current,
-                      [field.name]: undefined,
-                    }));
-                    setFormError("");
-                  }}
-                />
-                {error ? (
-                  <em id={`${field.name}-error`} className="field-error">
-                    {error}
-                  </em>
-                ) : (
-                  <span id={`${field.name}-hint`} className="field-hint">
-                    {field.hint}
-                  </span>
-                )}
-              </label>
-            );
-          })}
-        </div>
-      </section>
-
-      {formError ? <p className="form-error card">{formError}</p> : null}
-
-      <section className="card footer-card">
-        <button type="submit" className="submit-button" disabled={pending}>
-          {pending ? "Saving…" : "Submit registration"}
-        </button>
-      </section>
-    </form>
-
-    {successName ? (
-      <div
-        className="modal-backdrop"
-        onClick={resetForm}
-        role="presentation"
-      >
-        <div
-          className="modal-card"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="success-title"
-          aria-describedby="success-copy"
-          onClick={(event) => event.stopPropagation()}
-        >
-          <p className="page-kicker">Registered</p>
-          <h2 id="success-title">Thank you, {successName}.</h2>
-          <p id="success-copy">
-            Your registration has been saved. We will use the email and phone
-            number you provided if we need to follow up.
+      <form className="form-stack" onSubmit={handleSubmit} noValidate>
+        <section className="card header-card">
+          <Logo />
+          <h1>Registration</h1>
+          <p className="lede">
+            Fill in your details below. Fields marked * are required.
           </p>
-          <button type="button" className="submit-button" onClick={resetForm}>
-            Close
+        </section>
+
+        <section className="card form-card">
+          <div className="section-heading">
+            <h2>Your details</h2>
+            <p>Enter your name, phone, email, and institution.</p>
+          </div>
+
+          <div className="field-grid">
+            {fields.map((field) => {
+              const error = errors[field.name];
+
+              return (
+                <label key={field.name} className="field">
+                  <span className="field-label">
+                    {field.number}. {field.label}{" "}
+                    <span className="required" aria-hidden="true">
+                      *
+                    </span>
+                  </span>
+                  <input
+                    name={field.name}
+                    type={field.type}
+                    autoComplete={field.autoComplete}
+                    placeholder={field.placeholder}
+                    value={values[field.name]}
+                    required
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={
+                      error ? `${field.name}-error` : `${field.name}-hint`
+                    }
+                    onChange={(event) => {
+                      setValues((current) => ({
+                        ...current,
+                        [field.name]: event.target.value,
+                      }));
+                      setErrors((current) => ({
+                        ...current,
+                        [field.name]: undefined,
+                      }));
+                      setFormError("");
+                    }}
+                  />
+                  {error ? (
+                    <em id={`${field.name}-error`} className="field-error">
+                      {error}
+                    </em>
+                  ) : (
+                    <span id={`${field.name}-hint`} className="field-hint">
+                      {field.hint}
+                    </span>
+                  )}
+                </label>
+              );
+            })}
+          </div>
+        </section>
+
+        {formError ? <p className="form-error card">{formError}</p> : null}
+
+        <section className="card footer-card">
+          <button type="submit" className="submit-button" disabled={pending}>
+            {pending ? "Saving…" : "Submit registration"}
           </button>
+        </section>
+      </form>
+
+      {saved ? (
+        <div
+          className="modal-backdrop"
+          onClick={resetForm}
+          role="presentation"
+        >
+          <div
+            className="modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="success-title"
+            aria-describedby="success-copy"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p className="page-kicker">Registered</p>
+            <h2 id="success-title">Thank you, {saved.fullName}</h2>
+            <p id="success-copy">Your registration is complete.</p>
+            <dl className="success-details">
+              <div>
+                <dt>Full name</dt>
+                <dd>{saved.fullName}</dd>
+              </div>
+              <div>
+                <dt>Phone</dt>
+                <dd>{saved.phone}</dd>
+              </div>
+              <div>
+                <dt>Email</dt>
+                <dd>{saved.email}</dd>
+              </div>
+              <div>
+                <dt>Institution</dt>
+                <dd>{saved.institution}</dd>
+              </div>
+            </dl>
+            <button type="button" className="submit-button" onClick={resetForm}>
+              Done
+            </button>
+          </div>
         </div>
-      </div>
-    ) : null}
+      ) : null}
     </>
   );
 }
