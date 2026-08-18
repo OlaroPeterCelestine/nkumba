@@ -1,2 +1,3 @@
-export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "https://nkumbareg.vercel.app";
+export const REGISTRATION_URL = "https://nkumbareg.vercel.app";
+
+export const APP_URL = REGISTRATION_URL;
