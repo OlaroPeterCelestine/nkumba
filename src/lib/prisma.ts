@@ -2,8 +2,20 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prismaClient: PrismaClient | undefined;
 };
+
+function remoteConnection(connectionString: string) {
+  try {
+    const url = new URL(connectionString);
+    url.searchParams.set("sslmode", "no-verify");
+    return url.toString();
+  } catch {
+    const withoutMode = connectionString.replace(/[?&]sslmode=[^&]+/i, "");
+    const join = withoutMode.includes("?") ? "&" : "?";
+    return `${withoutMode}${join}sslmode=no-verify`;
+  }
+}
 
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
@@ -17,16 +29,18 @@ function createPrismaClient() {
     connectionString.includes("127.0.0.1");
 
   const adapter = new PrismaPg({
-    connectionString,
+    connectionString: isLocal
+      ? connectionString
+      : remoteConnection(connectionString),
     ssl: isLocal ? undefined : { rejectUnauthorized: false },
   });
   return new PrismaClient({ adapter });
 }
 
-const prisma = globalForPrisma.prisma ?? createPrismaClient();
+const prisma = globalForPrisma.prismaClient ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+  globalForPrisma.prismaClient = prisma;
 }
 
 export default prisma;
