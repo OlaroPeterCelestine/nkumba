@@ -288,7 +288,7 @@ body {
 }
 
 .qr-frame {
-  width: 180px;
+  width: min(260px, 100%);
   justify-self: center;
   background: #fff;
   border: 1px solid var(--line);

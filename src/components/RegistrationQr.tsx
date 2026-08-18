@@ -5,7 +5,7 @@ export default async function RegistrationQr() {
   const svg = await QRCode.toString(APP_URL, {
     type: "svg",
     margin: 1,
-    width: 180,
+    width: 260,
     color: {
       dark: "#4a3728",
       light: "#ffffff",
@@ -20,8 +20,8 @@ export default async function RegistrationQr() {
         dangerouslySetInnerHTML={{ __html: svg }}
       />
       <div>
-        <p className="page-kicker">Scan to register</p>
-        <h2>Open the form</h2>
+        <p className="page-kicker">QR code</p>
+        <h2>Scan this code</h2>
         <p>
           Point a phone camera at this code to open the live registration page.
         </p>

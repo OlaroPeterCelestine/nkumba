@@ -8,18 +8,22 @@ export async function middleware(request: NextRequest) {
   );
 
   if (pathname.startsWith("/admin") && !signedIn) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL("/manager", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (pathname === "/login" && signedIn) {
+  if ((pathname === "/manager" || pathname === "/login") && signedIn) {
     return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  if (pathname === "/login") {
+    return NextResponse.redirect(new URL("/manager", request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/login"],
+  matcher: ["/admin/:path*", "/manager", "/login"],
 };

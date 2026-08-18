@@ -1,12 +1,14 @@
-import RegistrationForm from "@/components/RegistrationForm";
 import RegistrationQr from "@/components/RegistrationQr";
 
-export default function Home() {
+export const metadata = {
+  title: "Registration QR code",
+};
+
+export default function QrPage() {
   return (
     <main className="page-shell">
       <div className="home-stack">
         <RegistrationQr />
-        <RegistrationForm />
       </div>
     </main>
   );

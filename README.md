@@ -7,11 +7,13 @@ Email and phone numbers are unique, so the same person cannot register twice.
 ## Live
 
 - Form: https://nkumba-rho.vercel.app
-- Admin dashboard: https://nkumba-rho.vercel.app/login
+- QR code: https://nkumba-rho.vercel.app/qr
+- Manager login: https://nkumba-rho.vercel.app/manager
+- Dashboard: https://nkumba-rho.vercel.app/admin
 - GitHub: https://github.com/OlaroPeterCelestine/nkumba
 - Railway Postgres: `nkumba` in the **bbs** workspace
 
-The public page includes a QR code for the live form. Registrations are viewed at `/admin` after signing in. Set `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and `SESSION_SECRET` in `.env` and in Vercel.
+The QR code is at the top of the public form and also at `/qr`. Sign in at `/manager` to view registrations at `/admin`.
 
 ## Local setup
 
