@@ -463,6 +463,21 @@ body {
   gap: 1.35rem;
 }
 
+.show-password {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.show-password input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: var(--ink);
+}
+
 .login-form .submit-button,
 .registration-form .submit-button {
   width: 100%;

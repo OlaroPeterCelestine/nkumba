@@ -8,12 +8,12 @@ Email and phone numbers are unique, so the same person cannot register twice.
 
 - Form: https://nkumbareg.vercel.app
 - QR code: https://nkumbareg.vercel.app/qr
-- Manager login: https://nkumbareg.vercel.app/manager
-- Dashboard: https://nkumbareg.vercel.app/admin
+- Login: https://nkumbareg.vercel.app/login
+- Admin dashboard: https://nkumbareg.vercel.app/admin
 - GitHub: https://github.com/OlaroPeterCelestine/nkumba
 - Railway Postgres: `nkumba` in the **bbs** workspace
 
-The QR code is at `/qr`. Sign in at `/manager` to view registrations at `/admin`.
+The QR code is at `/qr`. Sign in at `/login` to view the admin dashboard at `/admin`.
 
 ## Local setup
 

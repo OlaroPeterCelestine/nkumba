@@ -52,18 +52,17 @@ async function sign(payload: string, secret: string) {
   return bytesToBase64Url(signature);
 }
 
+const ADMIN_USERNAME = "admin";
+const ADMIN_PASSWORD = "QIls6pkRdVD3cpmgMjKjAQ";
+const SESSION_SECRET =
+  "6788a9b75ac1bd1b38acc312d9eff16be97414f04381bf6295041afdaf942c2f";
+
 export function getAuthConfig() {
-  const username = process.env.ADMIN_USERNAME ?? "";
-  const password = process.env.ADMIN_PASSWORD ?? "";
-  const secret = process.env.SESSION_SECRET ?? "";
-
-  if (!username || !password || !secret) {
-    throw new Error(
-      "ADMIN_USERNAME, ADMIN_PASSWORD, and SESSION_SECRET must be set.",
-    );
-  }
-
-  return { username, password, secret };
+  return {
+    username: ADMIN_USERNAME,
+    password: ADMIN_PASSWORD,
+    secret: SESSION_SECRET,
+  };
 }
 
 export async function createSessionToken(username: string) {

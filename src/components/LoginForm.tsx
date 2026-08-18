@@ -8,6 +8,7 @@ export default function LoginForm() {
   const searchParams = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(true);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -60,12 +61,20 @@ export default function LoginForm() {
         <span className="field-label">Password</span>
         <input
           name="password"
-          type="password"
+          type={showPassword ? "text" : "password"}
           autoComplete="current-password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
         />
+      </label>
+      <label className="show-password">
+        <input
+          type="checkbox"
+          checked={showPassword}
+          onChange={(event) => setShowPassword(event.target.checked)}
+        />
+        Show password
       </label>
       {error ? <p className="form-error">{error}</p> : null}
       <button type="submit" className="submit-button" disabled={pending}>

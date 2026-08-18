@@ -6,6 +6,6 @@ export async function requireAdminSession() {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
 
   if (!(await verifySessionToken(token))) {
-    redirect("/manager");
+    redirect("/login");
   }
 }
