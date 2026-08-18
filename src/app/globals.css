@@ -270,7 +270,7 @@ body {
   word-break: break-word;
 }
 
-.modal-card p#success-copy {
+.modal-copy {
   margin: 0.5rem 0 1.15rem;
   color: var(--muted);
   font-size: 0.98rem;

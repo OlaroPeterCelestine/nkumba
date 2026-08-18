@@ -90,22 +90,24 @@ export default function RegistrationForm() {
   const [formError, setFormError] = useState("");
   const [pending, setPending] = useState(false);
   const [saved, setSaved] = useState<RegistrationInput | null>(null);
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
 
-  function resetForm() {
-    setValues(emptyForm);
-    setErrors({});
-    setFormError("");
+  const modalOpen = Boolean(saved) || alreadyRegistered;
+
+  function closeModal() {
     setSaved(null);
+    setAlreadyRegistered(false);
+    setFormError("");
   }
 
   useEffect(() => {
-    if (!saved) {
+    if (!modalOpen) {
       return;
     }
 
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
-        resetForm();
+        closeModal();
       }
     }
 
@@ -116,7 +118,7 @@ export default function RegistrationForm() {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
     };
-  }, [saved]);
+  }, [modalOpen]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -126,6 +128,7 @@ export default function RegistrationForm() {
     }
 
     setFormError("");
+    setAlreadyRegistered(false);
 
     const parsed = parseRegistration(values);
 
@@ -151,6 +154,12 @@ export default function RegistrationForm() {
 
       if (!response.ok) {
         setErrors(result.errors ?? {});
+
+        if (response.status === 409) {
+          setAlreadyRegistered(true);
+          return;
+        }
+
         setFormError(result.message ?? "Could not save your registration.");
         return;
       }
@@ -214,6 +223,7 @@ export default function RegistrationForm() {
                         [field.name]: undefined,
                       }));
                       setFormError("");
+                      setAlreadyRegistered(false);
                     }}
                   />
                   {error ? (
@@ -243,7 +253,7 @@ export default function RegistrationForm() {
       {saved ? (
         <div
           className="modal-backdrop"
-          onClick={resetForm}
+          onClick={closeModal}
           role="presentation"
         >
           <div
@@ -256,7 +266,9 @@ export default function RegistrationForm() {
           >
             <p className="page-kicker">Registered</p>
             <h2 id="success-title">Thank you, {saved.fullName}</h2>
-            <p id="success-copy">Your registration is complete.</p>
+            <p id="success-copy" className="modal-copy">
+              Your registration is complete.
+            </p>
             <dl className="success-details">
               <div>
                 <dt>Full name</dt>
@@ -275,8 +287,36 @@ export default function RegistrationForm() {
                 <dd>{saved.institution}</dd>
               </div>
             </dl>
-            <button type="button" className="submit-button" onClick={resetForm}>
+            <button type="button" className="submit-button" onClick={closeModal}>
               Done
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {alreadyRegistered ? (
+        <div
+          className="modal-backdrop"
+          onClick={closeModal}
+          role="presentation"
+        >
+          <div
+            className="modal-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="duplicate-title"
+            aria-describedby="duplicate-copy"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p className="page-kicker">Already registered</p>
+            <h2 id="duplicate-title">This person is already registered.</h2>
+            <p id="duplicate-copy" className="modal-copy">
+              {errors.email || errors.phone
+                ? "A matching email or phone number is already on the list."
+                : "These details are already on the registration list."}
+            </p>
+            <button type="button" className="submit-button" onClick={closeModal}>
+              OK
             </button>
           </div>
         </div>
