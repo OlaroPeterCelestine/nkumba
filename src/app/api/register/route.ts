@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@/generated/prisma/client";
-import prisma from "@/lib/prisma";
+import {
+  getPrisma,
+  isDatabaseConnectionError,
+  resetPrisma,
+} from "@/lib/prisma";
 import {
   parseRegistration,
   type RegistrationErrors,
@@ -14,10 +17,24 @@ const DUPLICATE_MESSAGES: Record<keyof RegistrationInput, string> = {
   institution: "This institution is already registered.",
 };
 
-function duplicateErrors(
-  error: Prisma.PrismaClientKnownRequestError,
-): RegistrationErrors {
-  const target = error.meta?.target;
+function errorCode(error: unknown) {
+  if (error && typeof error === "object" && "code" in error) {
+    return String(error.code);
+  }
+
+  return "";
+}
+
+function errorTarget(error: unknown) {
+  if (error && typeof error === "object" && "meta" in error) {
+    const meta = error.meta as { target?: unknown } | undefined;
+    return meta?.target;
+  }
+
+  return undefined;
+}
+
+function duplicateErrors(target: unknown): RegistrationErrors {
   const names: string[] = Array.isArray(target)
     ? target.map((value) => String(value))
     : typeof target === "string"
@@ -37,6 +54,46 @@ function duplicateErrors(
   }
 
   return errors;
+}
+
+async function saveRegistration(data: RegistrationInput) {
+  const prisma = getPrisma();
+  const existing = await prisma.registration.findMany({
+    where: {
+      OR: [{ email: data.email }, { phone: data.phone }],
+    },
+    select: { email: true, phone: true },
+  });
+
+  if (existing.length > 0) {
+    const errors: RegistrationErrors = {};
+
+    if (existing.some((row) => row.email === data.email)) {
+      errors.email = DUPLICATE_MESSAGES.email;
+    }
+
+    if (existing.some((row) => row.phone === data.phone)) {
+      errors.phone = DUPLICATE_MESSAGES.phone;
+    }
+
+    return NextResponse.json(
+      {
+        message: "This person is already registered.",
+        errors,
+      },
+      { status: 409 },
+    );
+  }
+
+  const registration = await prisma.registration.create({ data });
+
+  return NextResponse.json(
+    {
+      message: "Registration saved.",
+      registration,
+    },
+    { status: 201 },
+  );
 }
 
 export async function POST(request: Request) {
@@ -66,60 +123,39 @@ export async function POST(request: Request) {
   const data = parsed.data;
 
   try {
-    const existing = await prisma.registration.findMany({
-      where: {
-        OR: [{ email: data.email }, { phone: data.phone }],
-      },
-      select: { email: true, phone: true },
-    });
-
-    if (existing.length > 0) {
-      const errors: RegistrationErrors = {};
-
-      if (existing.some((row) => row.email === data.email)) {
-        errors.email = DUPLICATE_MESSAGES.email;
-      }
-
-      if (existing.some((row) => row.phone === data.phone)) {
-        errors.phone = DUPLICATE_MESSAGES.phone;
-      }
-
-      return NextResponse.json(
-        {
-          message: "This person is already registered.",
-          errors,
-        },
-        { status: 409 },
-      );
-    }
-
-    const registration = await prisma.registration.create({
-      data,
-    });
-
-    return NextResponse.json(
-      {
-        message: "Registration saved.",
-        registration,
-      },
-      { status: 201 },
-    );
+    return await saveRegistration(data);
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      const errors = duplicateErrors(error);
+    if (errorCode(error) === "P2002") {
       return NextResponse.json(
         {
           message: "This person is already registered.",
-          errors,
+          errors: duplicateErrors(errorTarget(error)),
         },
         { status: 409 },
       );
     }
 
-    console.error("Failed to save registration", error);
+    if (isDatabaseConnectionError(error)) {
+      try {
+        await resetPrisma();
+        return await saveRegistration(data);
+      } catch (retryError) {
+        if (errorCode(retryError) === "P2002") {
+          return NextResponse.json(
+            {
+              message: "This person is already registered.",
+              errors: duplicateErrors(errorTarget(retryError)),
+            },
+            { status: 409 },
+          );
+        }
+
+        console.error("Failed to save registration after retry", retryError);
+      }
+    } else {
+      console.error("Failed to save registration", error);
+    }
+
     return NextResponse.json(
       { message: "Could not save your registration. Please try again." },
       { status: 500 },
