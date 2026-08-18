@@ -6,10 +6,10 @@ Email and phone numbers are unique, so the same person cannot register twice.
 
 ## Live
 
-- Form: https://nkumba-rho.vercel.app
-- QR code: https://nkumba-rho.vercel.app/qr
-- Manager login: https://nkumba-rho.vercel.app/manager
-- Dashboard: https://nkumba-rho.vercel.app/admin
+- Form: https://nkumbareg.vercel.app
+- QR code: https://nkumbareg.vercel.app/qr
+- Manager login: https://nkumbareg.vercel.app/manager
+- Dashboard: https://nkumbareg.vercel.app/admin
 - GitHub: https://github.com/OlaroPeterCelestine/nkumba
 - Railway Postgres: `nkumba` in the **bbs** workspace
 

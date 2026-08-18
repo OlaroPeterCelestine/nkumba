@@ -1,24 +1,19 @@
-import QRCode from "qrcode";
 import { APP_URL } from "@/lib/app-url";
+import { createRegistrationQrDataUrl } from "@/lib/registration-qr";
 
 export default async function RegistrationQr() {
-  const svg = await QRCode.toString(APP_URL, {
-    type: "svg",
-    margin: 1,
-    width: 260,
-    color: {
-      dark: "#4a3728",
-      light: "#ffffff",
-    },
-  });
+  const qrImage = await createRegistrationQrDataUrl(APP_URL);
 
   return (
     <section className="card qr-card">
-      <div
-        className="qr-frame"
-        aria-hidden="true"
-        dangerouslySetInnerHTML={{ __html: svg }}
-      />
+      <div className="qr-frame">
+        <img
+          src={qrImage}
+          alt="QR code for the Nkumba registration page"
+          width={480}
+          height={480}
+        />
+      </div>
       <div>
         <p className="page-kicker">QR code</p>
         <h2>Scan this code</h2>
@@ -27,6 +22,9 @@ export default async function RegistrationQr() {
         </p>
         <a className="qr-link" href={APP_URL}>
           {APP_URL.replace(/^https?:\/\//, "")}
+        </a>
+        <a className="qr-download" href={qrImage} download="nkumba-registration-qr.png">
+          Download QR image
         </a>
       </div>
     </section>
