@@ -120,6 +120,11 @@ export default function RegistrationForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (pending) {
+      return;
+    }
+
     setFormError("");
 
     const parsed = parseRegistration(values);
@@ -199,12 +204,17 @@ export default function RegistrationForm() {
                   aria-describedby={
                     error ? `${field.name}-error` : `${field.name}-hint`
                   }
-                  onChange={(event) =>
+                  onChange={(event) => {
                     setValues((current) => ({
                       ...current,
                       [field.name]: event.target.value,
-                    }))
-                  }
+                    }));
+                    setErrors((current) => ({
+                      ...current,
+                      [field.name]: undefined,
+                    }));
+                    setFormError("");
+                  }}
                 />
                 {error ? (
                   <em id={`${field.name}-error`} className="field-error">

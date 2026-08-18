@@ -10,7 +10,7 @@ datasource db {
 model Registration {
   id          String   @id @default(cuid())
   fullName    String
-  phone       String
+  phone       String   @unique
   email       String   @unique
   institution String
   createdAt   DateTime @default(now())

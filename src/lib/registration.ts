@@ -8,10 +8,17 @@ export type RegistrationInput = {
 export type RegistrationErrors = Partial<Record<keyof RegistrationInput, string>>;
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_PATTERN = /^\+?[0-9][0-9\s-]{7,19}$/;
+const PHONE_PATTERN = /^\+?[0-9]{8,15}$/;
 
 function readString(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+export function normalizePhone(value: string) {
+  const trimmed = value.trim();
+  const hasPlus = trimmed.startsWith("+");
+  const digits = trimmed.replace(/\D/g, "");
+  return hasPlus ? `+${digits}` : digits;
 }
 
 export function parseRegistration(body: unknown): {
@@ -29,7 +36,7 @@ export function parseRegistration(body: unknown): {
   const input = body as Record<string, unknown>;
   const data: RegistrationInput = {
     fullName: readString(input.fullName),
-    phone: readString(input.phone),
+    phone: normalizePhone(readString(input.phone)),
     email: readString(input.email).toLowerCase(),
     institution: readString(input.institution),
   };

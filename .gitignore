@@ -37,6 +37,9 @@ yarn-error.log*
 # prisma generated client
 /src/generated
 
+# railway link
+.railway
+
 # vercel
 .vercel
 
