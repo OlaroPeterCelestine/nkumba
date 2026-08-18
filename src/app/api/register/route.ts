@@ -18,8 +18,8 @@ function duplicateErrors(
   error: Prisma.PrismaClientKnownRequestError,
 ): RegistrationErrors {
   const target = error.meta?.target;
-  const names = Array.isArray(target)
-    ? target
+  const names: string[] = Array.isArray(target)
+    ? target.map((value) => String(value))
     : typeof target === "string"
       ? [target]
       : ["email"];
@@ -63,10 +63,12 @@ export async function POST(request: Request) {
     );
   }
 
+  const data = parsed.data;
+
   try {
     const existing = await prisma.registration.findMany({
       where: {
-        OR: [{ email: parsed.data.email }, { phone: parsed.data.phone }],
+        OR: [{ email: data.email }, { phone: data.phone }],
       },
       select: { email: true, phone: true },
     });
@@ -74,11 +76,11 @@ export async function POST(request: Request) {
     if (existing.length > 0) {
       const errors: RegistrationErrors = {};
 
-      if (existing.some((row) => row.email === parsed.data.email)) {
+      if (existing.some((row) => row.email === data.email)) {
         errors.email = DUPLICATE_MESSAGES.email;
       }
 
-      if (existing.some((row) => row.phone === parsed.data.phone)) {
+      if (existing.some((row) => row.phone === data.phone)) {
         errors.phone = DUPLICATE_MESSAGES.phone;
       }
 
@@ -92,7 +94,7 @@ export async function POST(request: Request) {
     }
 
     const registration = await prisma.registration.create({
-      data: parsed.data,
+      data,
     });
 
     return NextResponse.json(
