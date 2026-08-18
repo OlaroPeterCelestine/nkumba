@@ -13,7 +13,7 @@ Email and phone numbers are unique, so the same person cannot register twice.
 - GitHub: https://github.com/OlaroPeterCelestine/nkumba
 - Railway Postgres: `nkumba` in the **bbs** workspace
 
-The QR code is at the top of the public form and also at `/qr`. Sign in at `/manager` to view registrations at `/admin`.
+The QR code is at `/qr`. Sign in at `/manager` to view registrations at `/admin`.
 
 ## Local setup
 
